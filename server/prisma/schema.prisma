@@ -1,0 +1,259 @@
+// Skema Senada Studio. Dipakai juga sebagai dasar ERD di laporan.
+// Tidak ada tabel tiket: konsultasi calon klien berlangsung lewat WhatsApp.
+
+generator client {
+  provider = "prisma-client"
+  output   = "./generated"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+enum Role {
+  ADMIN
+  ARSITEK
+  KLIEN
+}
+
+enum Tingkatan {
+  BASIC
+  SILVER
+  PLATINUM
+}
+
+enum Lingkup {
+  INTERIOR
+  EKSTERIOR
+  FULL
+}
+
+enum StatusProyek {
+  AKTIF
+  SELESAI
+  DITUNDA
+}
+
+enum StatusTahap {
+  BELUM
+  BERJALAN
+  SELESAI
+}
+
+enum JenisKomentar {
+  KOMENTAR
+  REVISI
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  nama         String   @db.VarChar(100)
+  email        String   @unique @db.VarChar(150)
+  passwordHash String   @map("password_hash") @db.VarChar(100)
+  role         Role
+  telepon      String?  @db.VarChar(30)
+  aktif        Boolean  @default(true)
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  proyekKlien  Project[]       @relation("KlienProyek")
+  keanggotaan  ProjectMember[]
+  fileDiunggah ProjectFile[]
+  komentar     Comment[]
+  notifikasi   Notification[]
+
+  @@map("users")
+}
+
+// Satu baris per kombinasi tingkatan x lingkup (9 baris). Tarif diubah admin.
+model Package {
+  id         Int       @id @default(autoincrement())
+  tingkatan  Tingkatan
+  lingkup    Lingkup
+  tarifPerM2 Int       @map("tarif_per_m2")
+  aktif      Boolean   @default(true)
+
+  fasilitas  PackageFeature[]
+  portofolio Portfolio[]
+  proyek     Project[]
+
+  @@unique([tingkatan, lingkup])
+  @@map("packages")
+}
+
+model PackageFeature {
+  id        Int    @id @default(autoincrement())
+  packageId Int    @map("package_id")
+  teks      String @db.VarChar(200)
+  urutan    Int    @default(0)
+
+  package   Package @relation(fields: [packageId], references: [id], onDelete: Cascade)
+
+  @@index([packageId])
+  @@map("package_features")
+}
+
+model Category {
+  id   Int    @id @default(autoincrement())
+  nama String @db.VarChar(80)
+  slug String @unique @db.VarChar(100)
+
+  portofolio Portfolio[]
+
+  @@map("categories")
+}
+
+model Portfolio {
+  id         Int      @id @default(autoincrement())
+  judul      String   @db.VarChar(150)
+  slug       String   @unique @db.VarChar(180)
+  deskripsi  String?  @db.Text
+  lokasi     String?  @db.VarChar(120)
+  luasM2     Int?     @map("luas_m2")
+  tahun      Int?
+  categoryId Int      @map("category_id")
+  packageId  Int?     @map("package_id")
+  unggulan   Boolean  @default(false)
+  terbit     Boolean  @default(false)
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  category Category         @relation(fields: [categoryId], references: [id])
+  package  Package?         @relation(fields: [packageId], references: [id])
+  gambar   PortfolioImage[]
+
+  @@index([categoryId])
+  @@index([packageId])
+  @@map("portfolios")
+}
+
+model PortfolioImage {
+  id          Int     @id @default(autoincrement())
+  portfolioId Int     @map("portfolio_id")
+  path        String  @db.VarChar(255)
+  alt         String? @db.VarChar(200)
+  urutan      Int     @default(0)
+  sampul      Boolean @default(false)
+
+  portfolio Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+
+  @@index([portfolioId])
+  @@map("portfolio_images")
+}
+
+model Project {
+  id            Int          @id @default(autoincrement())
+  nama          String       @db.VarChar(150)
+  deskripsi     String?      @db.Text
+  lokasi        String?      @db.VarChar(120)
+  luasM2        Int?         @map("luas_m2")
+  packageId     Int?         @map("package_id")
+  clientId      Int          @map("client_id")
+  status        StatusProyek @default(AKTIF)
+  progres       Int          @default(0)
+  tanggalMulai  DateTime?    @map("tanggal_mulai") @db.Date
+  targetSelesai DateTime?    @map("target_selesai") @db.Date
+  createdAt     DateTime     @default(now()) @map("created_at")
+
+  klien      User            @relation("KlienProyek", fields: [clientId], references: [id])
+  package    Package?        @relation(fields: [packageId], references: [id])
+  anggota    ProjectMember[]
+  tahapan    ProjectStage[]
+  berkas     ProjectFile[]
+  komentar   Comment[]
+  notifikasi Notification[]
+
+  @@index([clientId])
+  @@index([packageId])
+  @@map("projects")
+}
+
+// Arsitek yang ditugaskan ke proyek (relasi n-n antara projects dan users).
+model ProjectMember {
+  projectId Int    @map("project_id")
+  userId    Int    @map("user_id")
+  peran     String @default("Arsitek") @db.VarChar(60)
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([projectId, userId])
+  @@index([userId])
+  @@map("project_members")
+}
+
+// Tahapan dinamis: tahapan default disalin saat proyek dibuat, lalu bisa diubah per proyek.
+model ProjectStage {
+  id             Int         @id @default(autoincrement())
+  projectId      Int         @map("project_id")
+  nama           String      @db.VarChar(100)
+  urutan         Int
+  status         StatusTahap @default(BELUM)
+  tanggalMulai   DateTime?   @map("tanggal_mulai") @db.Date
+  tanggalTarget  DateTime?   @map("tanggal_target") @db.Date
+  tanggalSelesai DateTime?   @map("tanggal_selesai") @db.Date
+
+  project Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  berkas  ProjectFile[]
+
+  @@index([projectId])
+  @@map("project_stages")
+}
+
+// versi naik setiap revisi dokumen yang sama, sehingga riwayat gambar kerja terlihat.
+model ProjectFile {
+  id            Int      @id @default(autoincrement())
+  projectId     Int      @map("project_id")
+  stageId       Int?     @map("stage_id")
+  nama          String   @db.VarChar(150)
+  path          String   @db.VarChar(255)
+  mime          String   @db.VarChar(100)
+  ukuran        Int
+  versi         Int      @default(1)
+  catatanRevisi String?  @map("catatan_revisi") @db.VarChar(300)
+  uploadedBy    Int      @map("uploaded_by")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  project    Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  stage      ProjectStage? @relation(fields: [stageId], references: [id], onDelete: SetNull)
+  pengunggah User          @relation(fields: [uploadedBy], references: [id])
+
+  @@index([projectId])
+  @@index([stageId])
+  @@index([uploadedBy])
+  @@map("project_files")
+}
+
+model Comment {
+  id        Int           @id @default(autoincrement())
+  projectId Int           @map("project_id")
+  userId    Int           @map("user_id")
+  parentId  Int?          @map("parent_id")
+  isi       String        @db.Text
+  jenis     JenisKomentar @default(KOMENTAR)
+  createdAt DateTime      @default(now()) @map("created_at")
+
+  project Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user    User      @relation(fields: [userId], references: [id])
+  parent  Comment?  @relation("Balasan", fields: [parentId], references: [id], onDelete: Cascade)
+  balasan Comment[] @relation("Balasan")
+
+  @@index([projectId])
+  @@index([userId])
+  @@index([parentId])
+  @@map("comments")
+}
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @map("user_id")
+  projectId Int?     @map("project_id")
+  pesan     String   @db.VarChar(255)
+  dibaca    Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([userId, dibaca])
+  @@index([projectId])
+  @@map("notifications")
+}

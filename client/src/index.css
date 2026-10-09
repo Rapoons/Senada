@@ -1,0 +1,48 @@
+@import "tailwindcss";
+
+/* Palet diambil dari logo Senada: biru tua, cokelat bata, abu-zaitun. */
+@theme {
+  --color-paper: #f8f8f8;
+  --color-ink: #28374b;
+  --color-muted: #6f6754;
+  --color-line: #cfcbc0;
+  --color-accent: #7e5b52;
+  --font-display: "Cormorant Garamond", "Iowan Old Style", Georgia, serif;
+  --font-body: "Hanken Grotesk", "Segoe UI", Arial, sans-serif;
+}
+
+html { background: var(--color-paper); }
+body {
+  font-family: var(--font-body);
+  color: var(--color-ink);
+  background: var(--color-paper);
+  -webkit-font-smoothing: antialiased;
+}
+::selection { background: var(--color-accent); color: var(--color-paper); }
+:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; }
+
+/* Garis bawah yang menyusut saat hover (tautan teks). */
+/* Latar gradien lembut dalam palet brand + grain tipis (SVG noise, tanpa canvas) */
+.wash {
+  background-color: var(--color-paper);
+  background-image:
+    url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.1'/></svg>"),
+    linear-gradient(150deg, #f8f8f8 0%, #e7e4dc 33%, #e3d3cd 67%, #f1ece4 100%);
+  background-size: 120px 120px, auto;
+  background-blend-mode: overlay, normal;
+}
+
+.under {
+  background: linear-gradient(currentColor, currentColor) left bottom / 100% 1px no-repeat;
+  padding-bottom: 4px;
+  transition: color .3s, background-size .4s;
+}
+.under:hover { color: var(--color-accent); background-size: 0% 1px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .under { transition: none; }
+}
+
+/* Lenis */
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
