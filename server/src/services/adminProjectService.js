@@ -50,13 +50,21 @@ export async function create({ klienBaru, clientId, arsitekIds, tanggalMulai, ta
 // Ringkasan untuk halaman awal dashboard admin.
 export async function summary() {
   const hariIni = new Date(new Date().toDateString())
-  const [proyek, pengguna, terbit, draf, tahapTertunda] = await Promise.all([
+  const syaratTunda = { status: { not: 'SELESAI' }, tanggalTarget: { lt: hariIni } }
+  const [proyek, pengguna, terbit, draf, tahapTertunda, daftarTunda] = await Promise.all([
     prisma.project.groupBy({ by: ['status'], _count: true }),
     prisma.user.groupBy({ by: ['role'], where: { aktif: true }, _count: true }),
     prisma.portfolio.count({ where: { terbit: true } }),
     prisma.portfolio.count({ where: { terbit: false } }),
-    prisma.projectStage.count({ where: { status: { not: 'SELESAI' }, tanggalTarget: { lt: hariIni } } }),
+    prisma.projectStage.count({ where: syaratTunda }),
+    // Daftar tahapan terlambat (paling lama lewat target lebih dulu), maksimal 8, hanya dari proyek aktif.
+    prisma.projectStage.findMany({
+      where: { ...syaratTunda, project: { status: 'AKTIF' } },
+      orderBy: { tanggalTarget: 'asc' },
+      take: 8,
+      select: { id: true, nama: true, tanggalTarget: true, project: { select: { id: true, nama: true } } },
+    }),
   ])
   const hitung = (rows, key) => Object.fromEntries(rows.map((r) => [r[key], r._count]))
-  return { proyek: hitung(proyek, 'status'), pengguna: hitung(pengguna, 'role'), portofolio: { terbit, draf }, tahapTertunda }
+  return { proyek: hitung(proyek, 'status'), pengguna: hitung(pengguna, 'role'), portofolio: { terbit, draf }, tahapTertunda, daftarTunda }
 }

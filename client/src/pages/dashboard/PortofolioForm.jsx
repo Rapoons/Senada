@@ -2,12 +2,13 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { kirim, useApi } from '../../lib/api'
 import { LINGKUP, TINGKATAN } from '../../lib/estimasi'
-import { Btn, Field, Judul, Pesan, angkaAtauNull, input, kosongKeNull } from './ui'
+import { Btn, Field, Judul, Pesan, angkaAtauNull, input, kosongKeNull, useTanya } from './ui'
 
 const kosong = { judul: '', categoryId: '', packageId: '', lokasi: '', luasM2: '', tahun: '', deskripsi: '', unggulan: false, terbit: false }
 
 function Galeri({ item, onUbah }) {
   const [err, setErr] = useState(null)
+  const [tanya, dialog] = useTanya()
   const [sibuk, setSibuk] = useState(false)
 
   const jalankan = async (fn) => {
@@ -23,6 +24,7 @@ function Galeri({ item, onUbah }) {
 
   return (
     <section className="mt-14" aria-labelledby="galeri">
+      {dialog}
       <h2 id="galeri" className="font-display text-2xl font-medium">Galeri foto</h2>
       <p className="mt-1 text-sm text-muted">JPG, PNG, atau WebP, maksimal 5 MB per foto. Foto bertanda sampul tampil di kartu portofolio.</p>
       <div className="mt-4"><Pesan error={err} /></div>
@@ -30,7 +32,7 @@ function Galeri({ item, onUbah }) {
 
       <ul className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {item.gambar.map((g) => (
-          <li key={g.id} className="border border-line bg-white p-3">
+          <li key={g.id} className="border border-line bg-panel p-3">
             <img src={g.path} alt={g.alt || ''} className="aspect-[4/3] w-full object-cover" />
             <input
               defaultValue={g.alt ?? ''}
@@ -41,7 +43,7 @@ function Galeri({ item, onUbah }) {
             />
             <div className="mt-3 flex items-center justify-between gap-2">
               {g.sampul ? <span className="text-xs text-accent">Sampul</span> : <Btn variant="garis" onClick={() => jalankan(() => kirim('PATCH', `/admin/portfolio-images/${g.id}`, { sampul: true }))}>Jadikan sampul</Btn>}
-              <Btn variant="bahaya" onClick={() => window.confirm('Hapus foto ini?') && jalankan(() => kirim('DELETE', `/admin/portfolio-images/${g.id}`))}>Hapus</Btn>
+              <Btn variant="bahaya" onClick={async () => (await tanya({ judul: 'Hapus foto ini?', tombol: 'Hapus', bahaya: true })) && jalankan(() => kirim('DELETE', `/admin/portfolio-images/${g.id}`))}>Hapus</Btn>
             </div>
           </li>
         ))}
@@ -58,6 +60,7 @@ export default function PortofolioForm() {
   const { data: item, error: errMuat } = useApi(id ? `/admin/portfolios/${id}` : null)
   const [f, setF] = useState(kosong)
   const [galeri, setGaleri] = useState(null)
+  const [tanya, dialog] = useTanya()
   const [err, setErr] = useState(null)
   const [ok, setOk] = useState(null)
 
@@ -90,12 +93,13 @@ export default function PortofolioForm() {
   }
 
   async function hapus() {
-    if (!window.confirm(`Hapus proyek "${f.judul}" beserta semua fotonya? Tindakan ini tidak bisa dibatalkan.`)) return
+    if (!(await tanya({ judul: `Hapus proyek "${f.judul}"?`, pesan: 'Semua fotonya ikut terhapus. Tindakan ini tidak bisa dibatalkan.', tombol: 'Hapus', bahaya: true }))) return
     try { await kirim('DELETE', `/admin/portfolios/${id}`); navigate('/dashboard/portofolio') } catch (e) { setErr(e) }
   }
 
   return (
     <>
+      {dialog}
       <Judul aksi={<Link to="/dashboard/portofolio" className="text-sm underline underline-offset-4 hover:text-accent">Kembali ke daftar</Link>}>
         {id ? 'Ubah proyek' : 'Proyek baru'}
       </Judul>

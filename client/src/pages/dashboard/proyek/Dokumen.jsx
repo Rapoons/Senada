@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { kirim, unduh, useApi } from '../../../lib/api'
 import { ukuran, waktu } from '../../../lib/format'
-import { Btn, Field, Pesan, input } from '../ui'
+import { Btn, Field, Pesan, input, useTanya } from '../ui'
 
 // Dokumen proyek. Nama dokumen yang sama = versi baru, jadi riwayat revisi gambar kerja terlihat.
 export default function Dokumen({ proyek, user }) {
@@ -9,6 +9,7 @@ export default function Dokumen({ proyek, user }) {
   const [err, setErr] = useState(null)
   const [ok, setOk] = useState(null)
   const [sibuk, setSibuk] = useState(false)
+  const [tanya, dialog] = useTanya()
   const staf = user.role !== 'KLIEN'
 
   // Kelompokkan per nama dokumen; server sudah mengurutkan versi terbaru lebih dulu.
@@ -33,6 +34,7 @@ export default function Dokumen({ proyek, user }) {
 
   return (
     <section aria-labelledby="dokumen" className="mt-14">
+      {dialog}
       <h2 id="dokumen" className="font-display text-2xl font-medium">Dokumen</h2>
       <div className="mt-4"><Pesan error={err || error} ok={ok} /></div>
 
@@ -49,7 +51,7 @@ export default function Dokumen({ proyek, user }) {
               </div>
               <span className="flex gap-2">
                 <Btn variant="garis" onClick={aksi(() => unduh(`/files/${f.id}/download`))}>Unduh</Btn>
-                {staf && bolehHapus(f) && <Btn variant="bahaya" onClick={() => window.confirm(`Hapus "${nama}" v${f.versi}?`) && aksi(() => kirim('DELETE', `/files/${f.id}`))()}>Hapus</Btn>}
+                {staf && bolehHapus(f) && <Btn variant="bahaya" onClick={async () => (await tanya({ judul: `Hapus "${nama}" v${f.versi}?`, tombol: 'Hapus', bahaya: true })) && aksi(() => kirim('DELETE', `/files/${f.id}`))()}>Hapus</Btn>}
               </span>
             </div>
           )
@@ -68,7 +70,7 @@ export default function Dokumen({ proyek, user }) {
       </ul>
 
       {staf && (
-        <form onSubmit={unggah} className="mt-8 max-w-xl space-y-4 border border-line bg-white p-5" aria-label="Unggah dokumen">
+        <form onSubmit={unggah} className="mt-8 max-w-xl space-y-4 border border-line bg-panel p-5" aria-label="Unggah dokumen">
           <h3 className="text-sm font-medium">Unggah dokumen atau gambar kerja</h3>
           <Field label="File" hint="PDF, DWG, DOCX, XLSX, ZIP, JPG, PNG, atau WebP. Maksimal 25 MB.">
             <input name="berkas" type="file" required accept=".pdf,.dwg,.docx,.xlsx,.zip,.jpg,.jpeg,.png,.webp" className="mt-1 block text-sm" />

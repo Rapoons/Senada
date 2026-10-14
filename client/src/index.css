@@ -7,8 +7,9 @@
   --color-muted: #6f6754;
   --color-line: #cfcbc0;
   --color-accent: #7e5b52;
-  --font-display: "Cormorant Garamond", "Iowan Old Style", Georgia, serif;
-  --font-body: "Hanken Grotesk", "Segoe UI", Arial, sans-serif;
+  --color-panel: #ffffff;
+  --font-display: "Fraunces", "Iowan Old Style", Georgia, serif;
+  --font-body: "Space Grotesk", "Segoe UI", Arial, sans-serif;
 }
 
 html { background: var(--color-paper); }
@@ -46,3 +47,17 @@ body {
 /* Lenis */
 html.lenis, html.lenis body { height: auto; }
 .lenis.lenis-smooth { scroll-behavior: auto !important; }
+
+/* Mode gelap dashboard: kelas "gelap" dipasang di <html> hanya selama dashboard terbuka (lihat Dashboard.jsx). */
+html.gelap {
+  --color-paper: #12171e;
+  --color-panel: #1a212b;
+  --color-ink: #e9e6df;
+  --color-muted: #a8a18d;
+  --color-line: #323b49;
+  --color-accent: #cf9f94;
+  color-scheme: dark;
+}
+html.gelap .logo-dashboard { filter: brightness(0) invert(0.92); }
+html.gelap .text-red-800 { color: #f2a0a0; }
+html.gelap .border-red-800\/50, html.gelap .border-red-800\/40 { border-color: rgb(242 160 160 / 0.5); }

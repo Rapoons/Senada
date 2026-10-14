@@ -5,3 +5,5 @@ server/uploads
 server/prisma/generated
 
 .claude
+
+CLAUDE.md

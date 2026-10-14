@@ -14,7 +14,7 @@ const Dashboard = lazy(() => import('./pages/dashboard/Dashboard'))
 
 export default function App() {
   const location = useLocation()
-  const internal = location.pathname === '/masuk' || location.pathname.startsWith('/dashboard')
+  const internal = location.pathname === '/login' || location.pathname.startsWith('/dashboard')
   useLenis(!internal)
 
   // Dashboard: tanpa tirai transisi dan tanpa smooth scroll (animasi minimal).
@@ -22,7 +22,7 @@ export default function App() {
     return (
       <Suspense fallback={<p className="p-8 text-sm">Memuat...</p>}>
         <Routes>
-          <Route path="/masuk" element={<Masuk />} />
+          <Route path="/login" element={<Masuk />} />
           <Route path="/dashboard/*" element={<Dashboard />} />
         </Routes>
       </Suspense>
@@ -30,7 +30,7 @@ export default function App() {
   }
 
   return (
-    // mode="wait": halaman lama keluar (tirai turun) dulu, baru halaman baru masuk.
+    // mode="wait": halaman lama fade out dulu, baru halaman baru masuk.
     <AnimatePresence mode="wait" onExitComplete={() => window.scrollTo(0, 0)}>
       <Routes location={location} key={location.pathname}>
         <Route path="/" element={<PublicLayout><Beranda /></PublicLayout>} />

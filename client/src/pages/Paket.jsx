@@ -31,7 +31,7 @@ export default function Paket() {
   if (error) return <p className="px-6 pb-28 pt-40 md:px-16">Data paket belum bisa dimuat. Pastikan server API berjalan.</p>
 
   return (
-    <div className="mx-auto max-w-[1440px] px-6 pb-32 pt-16 md:px-16 md:pt-24">
+    <div className="mx-auto max-w-[1440px] px-6 pb-12 pt-4 md:px-16 md:pt-8">
       <h1 className="max-w-[14ch] font-display text-6xl font-normal leading-[1.02] md:text-8xl">Paket dan estimasi</h1>
       <p className="mt-8 max-w-md">Pilih tingkatan dan lingkup, isi total luas lantai, lalu lihat perkiraan biayanya. Lanjutkan konsultasi langsung lewat WhatsApp.</p>
 

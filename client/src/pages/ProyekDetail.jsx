@@ -25,11 +25,11 @@ export default function ProyekDetail() {
   ].filter(([, v]) => v)
 
   return (
-    <article className="mx-auto max-w-[1440px] px-6 pb-32 pt-16 md:px-16 md:pt-24">
+    <article className="mx-auto max-w-[1440px] px-6 pb-12 pt-4 md:px-16 md:pt-8">
       <Link to="/portofolio" className="under text-sm">Semua proyek</Link>
       <h1 className="mt-10 max-w-[16ch] font-display text-6xl font-normal leading-[1.02] md:text-8xl">{p.judul}</h1>
 
-      <div className="mt-16 grid gap-10 md:grid-cols-12 md:gap-x-6">
+      <div className="mt-10 grid gap-10 md:grid-cols-12 md:gap-x-6">
         <dl className="grid grid-cols-2 content-start gap-x-4 gap-y-6 border-t border-ink pt-6 md:col-span-4">
           {meta.map(([k, v]) => (
             <div key={k}>
@@ -41,7 +41,7 @@ export default function ProyekDetail() {
         {p.deskripsi && <p className="max-w-lg md:col-span-6 md:col-start-7">{p.deskripsi}</p>}
       </div>
 
-      <div className="mt-20 space-y-8">
+      <div className="mt-12 space-y-8">
         {p.gambar.map((g, i) => (
           <RevealImage key={g.id} src={g.path} alt={g.alt || `${p.judul}, foto ${i + 1}`} ratio="16 / 9" />
         ))}

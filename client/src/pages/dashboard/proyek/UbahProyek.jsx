@@ -31,7 +31,7 @@ export default function UbahProyek({ proyek, onSelesai }) {
   }
 
   return (
-    <form onSubmit={simpan} className="mt-8 max-w-2xl space-y-5 border border-line bg-white p-6" aria-label="Ubah proyek">
+    <form onSubmit={simpan} className="mt-8 max-w-2xl space-y-5 border border-line bg-panel p-6" aria-label="Ubah proyek">
       <Pesan error={err} />
       <div className="grid gap-5 sm:grid-cols-2">
         <Field label="Nama proyek"><input required minLength={2} value={f.nama} onChange={set('nama')} className={input} /></Field>

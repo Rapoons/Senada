@@ -38,7 +38,7 @@ export default function Rincian() {
 
   return (
     <>
-      <Link to="/dashboard/proyek" className="text-sm underline underline-offset-4 hover:text-accent">Semua proyek</Link>
+      <Link to={user.role === 'ADMIN' ? '/dashboard/proyek' : '/dashboard'} className="text-sm underline underline-offset-4 hover:text-accent">{user.role === 'ADMIN' ? 'Semua proyek' : 'Proyek saya'}</Link>
       <div className="mt-6 flex flex-wrap items-end justify-between gap-4">
         <h1 className="font-display text-4xl font-medium">{p.nama}</h1>
         {user.role === 'ADMIN' && !ubah && <Btn variant="garis" onClick={() => setUbah(true)}>Ubah data proyek</Btn>}

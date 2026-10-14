@@ -24,6 +24,7 @@ const menu = {
 export default function Dashboard() {
   const { user, siap, keluar } = useAuth()
   const [buka, setBuka] = useState(false)
+  const [gelap, setGelap] = useState(() => { try { return localStorage.getItem('senada_tema') === 'gelap' } catch { return false } })
   const { pathname } = useLocation()
   const { data: notif, reload: muatNotif } = useApi(user ? '/notifications' : null)
 
@@ -34,18 +35,38 @@ export default function Dashboard() {
     return () => window.removeEventListener('senada:notif', muatNotif)
   }, [muatNotif])
 
+  // Kelas "gelap" di <html> hanya aktif selama dashboard terbuka; landing page tetap terang.
+  useEffect(() => {
+    document.documentElement.classList.toggle('gelap', gelap)
+    try { localStorage.setItem('senada_tema', gelap ? 'gelap' : 'terang') } catch { /* abaikan */ }
+    return () => document.documentElement.classList.remove('gelap')
+  }, [gelap])
+
   if (!siap) return <p className="p-8 text-sm">Memeriksa sesi...</p>
-  if (!user) return <Navigate to="/masuk" replace />
+  if (!user) return <Navigate to="/login" replace />
 
   const admin = user.role === 'ADMIN'
   const cls = ({ isActive }) => `flex items-center justify-between border-l-2 py-2 pl-4 pr-2 text-sm ${isActive ? 'border-accent text-accent' : 'border-transparent hover:text-accent'}`
 
+  const tombolTema = (
+    <button onClick={() => setGelap(!gelap)} aria-pressed={gelap} aria-label={gelap ? 'Ganti ke mode terang' : 'Ganti ke mode gelap'} title={gelap ? 'Mode terang' : 'Mode gelap'} className="text-ink hover:text-accent">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        {gelap
+          ? <><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" /></>
+          : <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" />}
+      </svg>
+    </button>
+  )
+
   return (
     <div className="min-h-screen md:grid md:grid-cols-[15rem_1fr]">
       <a href="#isi" className="sr-only focus:not-sr-only focus:absolute focus:left-2 focus:top-2 focus:z-50 focus:bg-ink focus:px-4 focus:py-2 focus:text-paper">Lompat ke konten</a>
-      <aside className="border-b border-line bg-white md:min-h-screen md:border-b-0 md:border-r">
+      <aside className="border-b border-line bg-panel md:min-h-screen md:border-b-0 md:border-r">
         <div className="flex items-center justify-between px-6 py-4 md:block">
-          <Logo width={96} />
+          <div className="flex items-center gap-4">
+            <Logo width={96} className="logo-dashboard" />
+            {tombolTema}
+          </div>
           <button className="px-2 py-2 text-sm md:hidden" aria-expanded={buka} onClick={() => setBuka(!buka)}>{buka ? 'Tutup' : 'Menu'}</button>
         </div>
         <nav className={`${buka ? 'block' : 'hidden'} px-2 pb-4 md:block`} aria-label="Menu dashboard">

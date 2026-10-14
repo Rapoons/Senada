@@ -50,7 +50,7 @@ export default function PaketAdmin() {
       </Tabel>
 
       {edit && (
-        <form onSubmit={simpan} className="mt-8 max-w-xl space-y-5 border border-line bg-white p-6" aria-label="Ubah paket">
+        <form onSubmit={simpan} className="mt-8 max-w-xl space-y-5 border border-line bg-panel p-6" aria-label="Ubah paket">
           <h2 className="font-display text-2xl font-medium">
             {(() => { const p = paket.find((x) => x.id === edit.id); return `${TINGKATAN[p.tingkatan]} · ${LINGKUP[p.lingkup]}` })()}
           </h2>

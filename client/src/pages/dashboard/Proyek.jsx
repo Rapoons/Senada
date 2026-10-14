@@ -52,7 +52,7 @@ export default function Proyek() {
       <Pesan error={error} />
 
       {f && (
-        <form onSubmit={simpan} className="mb-10 max-w-2xl space-y-5 border border-line bg-white p-6" aria-label="Proyek baru">
+        <form onSubmit={simpan} className="mb-10 max-w-2xl space-y-5 border border-line bg-panel p-6" aria-label="Proyek baru">
           <h2 className="font-display text-2xl font-medium">Proyek baru</h2>
           <Pesan error={err} />
           <Field label="Nama proyek"><input required minLength={2} value={f.nama} onChange={set('nama')} className={input} /></Field>

@@ -22,7 +22,7 @@ export default function ProyekSaya() {
       <ul className="grid gap-4 md:grid-cols-2">
         {data?.map((p) => (
           <li key={p.id}>
-            <Link to={`/dashboard/proyek/${p.id}`} className="block border border-line bg-white p-5 transition-colors hover:border-ink">
+            <Link to={`/dashboard/proyek/${p.id}`} className="block border border-line bg-panel p-5 transition-colors hover:border-ink">
               <p className="font-display text-2xl font-medium">{p.nama}</p>
               <p className="mt-1 text-xs text-muted">
                 {STATUS_PROYEK[p.status]}{user.role === 'ARSITEK' ? ` · Klien: ${p.klien.nama}` : p.anggota.length ? ` · Arsitek: ${p.anggota.map((a) => a.user.nama).join(', ')}` : ''}

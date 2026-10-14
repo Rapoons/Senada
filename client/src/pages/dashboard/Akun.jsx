@@ -37,7 +37,7 @@ export default function Akun() {
       <Pesan error={error} />
 
       {f && (
-        <form onSubmit={simpan} className="mb-10 max-w-xl space-y-5 border border-line bg-white p-6" aria-label={f.id ? 'Ubah akun' : 'Akun baru'}>
+        <form onSubmit={simpan} className="mb-10 max-w-xl space-y-5 border border-line bg-panel p-6" aria-label={f.id ? 'Ubah akun' : 'Akun baru'}>
           <h2 className="font-display text-2xl font-medium">{f.id ? 'Ubah akun' : 'Akun baru'}</h2>
           <Pesan error={err} />
           <Field label="Nama"><input required minLength={2} value={f.nama} onChange={set('nama')} className={input} /></Field>

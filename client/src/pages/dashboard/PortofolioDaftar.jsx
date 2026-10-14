@@ -1,26 +1,28 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { kirim, useApi } from '../../lib/api'
-import { Btn, Judul, Pesan, Tabel, Td, Th, input } from './ui'
+import { Btn, Judul, Pesan, Tabel, Td, Th, input, useTanya } from './ui'
 
 function Kategori() {
   const { data: daftar, reload } = useApi('/categories')
   const [baru, setBaru] = useState('')
   const [err, setErr] = useState(null)
+  const [tanya, dialog] = useTanya()
 
   const jalankan = async (fn) => { setErr(null); try { await fn(); reload() } catch (e) { setErr(e) } }
 
   return (
     <section className="mt-14" aria-labelledby="kategori">
+      {dialog}
       <h2 id="kategori" className="font-display text-2xl font-medium">Kategori</h2>
       <Pesan error={err} />
-      <ul className="mt-4 max-w-md divide-y divide-line border border-line bg-white">
+      <ul className="mt-4 max-w-md divide-y divide-line border border-line bg-panel">
         {daftar?.map((k) => (
           <li key={k.id} className="flex items-center justify-between gap-3 px-4 py-2 text-sm">
             <span>{k.nama}</span>
             <span className="flex gap-2">
-              <Btn variant="garis" onClick={() => { const n = window.prompt('Nama kategori', k.nama); if (n) jalankan(() => kirim('PATCH', `/admin/categories/${k.id}`, { nama: n })) }}>Ubah</Btn>
-              <Btn variant="bahaya" onClick={() => window.confirm(`Hapus kategori "${k.nama}"?`) && jalankan(() => kirim('DELETE', `/admin/categories/${k.id}`))}>Hapus</Btn>
+              <Btn variant="garis" onClick={async () => { const n = await tanya({ judul: 'Ubah kategori', nilai: k.nama }); if (n) jalankan(() => kirim('PATCH', `/admin/categories/${k.id}`, { nama: n })) }}>Ubah</Btn>
+              <Btn variant="bahaya" onClick={async () => (await tanya({ judul: `Hapus kategori "${k.nama}"?`, tombol: 'Hapus', bahaya: true })) && jalankan(() => kirim('DELETE', `/admin/categories/${k.id}`))}>Hapus</Btn>
             </span>
           </li>
         ))}

@@ -104,4 +104,5 @@ test('proyek: buat dengan klien baru, 7 tahapan default, validasi klien/arsitek'
   assert.equal((await call('POST', '/admin/projects', admin, { nama: 'Arsitek salah', klienBaru: { nama: 'K', email: 'k@x.test', password: 'rahasia123' }, arsitekIds: [p.clientId] })).status, 400)
   const ringkas = await json(await call('GET', '/admin/summary', admin))
   assert.ok(ringkas.proyek.AKTIF >= 1)
+  assert.ok(Array.isArray(ringkas.daftarTunda) && ringkas.daftarTunda.length <= ringkas.tahapTertunda)
 })

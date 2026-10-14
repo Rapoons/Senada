@@ -5,6 +5,7 @@ import { useApi } from '../lib/api'
 
 export default function Portofolio() {
   const [kategori, setKategori] = useState('')
+  const [tampil, setTampil] = useState(6) // jumlah proyek yang terlihat; "View more" menambah 6
   const { data: kategoriList } = useApi('/categories')
   const { data: items, error, loading } = useApi(kategori ? `/portfolios?category=${kategori}` : '/portfolios')
 
@@ -12,17 +13,17 @@ export default function Portofolio() {
 
   return (
     <>
-      <header className="mx-auto max-w-[1440px] px-6 pb-12 pt-16 md:px-16 md:pt-24">
-        <h1 className="max-w-[12ch] font-display text-6xl font-normal leading-[1.02] md:text-8xl">Portofolio</h1>
+      <header className="mx-auto max-w-[1440px] px-6 pb-12 pt-4 md:px-16 md:pt-8">
+        <h1 className="max-w-[12ch] font-display text-6xl font-normal leading-[1.02] md:text-8xl">Portfolio</h1>
       </header>
 
       <GaleriParalaks />
 
-      <section className="mx-auto max-w-[1440px] px-6 pb-24 pt-12 md:px-16">
+      <section className="mx-auto max-w-[1440px] px-6 pb-12 pt-12 md:px-16">
         <div className="flex flex-wrap gap-x-8 gap-y-3" role="group" aria-label="Filter kategori">
-          <button className={tombol(!kategori)} aria-pressed={!kategori} onClick={() => setKategori('')}>Semua</button>
+          <button className={tombol(!kategori)} aria-pressed={!kategori} onClick={() => { setKategori(''); setTampil(6) }}>Semua</button>
           {kategoriList?.map((k) => (
-            <button key={k.slug} className={tombol(kategori === k.slug)} aria-pressed={kategori === k.slug} onClick={() => setKategori(k.slug)}>{k.nama}</button>
+            <button key={k.slug} className={tombol(kategori === k.slug)} aria-pressed={kategori === k.slug} onClick={() => { setKategori(k.slug); setTampil(6) }}>{k.nama}</button>
           ))}
         </div>
 
@@ -31,7 +32,7 @@ export default function Portofolio() {
 
         {/* Grid seragam: 1 kolom di HP, 2 di tablet, 3 di desktop. Rasio kartu tetap, tanpa animasi masuk. */}
         <div className="mt-10 grid gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
-          {items?.map((p) => (
+          {items?.slice(0, tampil).map((p) => (
             <Link key={p.slug} to={`/portofolio/${p.slug}`} className="group block">
               <div className="aspect-[4/3] overflow-hidden bg-line">
                 <img
@@ -48,6 +49,14 @@ export default function Portofolio() {
             </Link>
           ))}
         </div>
+
+        {items?.length > tampil && (
+          <div className="mt-14 flex justify-center">
+            <button onClick={() => setTampil(tampil + 6)} className="border border-ink px-8 py-3 text-sm tracking-wider transition-colors hover:bg-ink hover:text-paper">
+              View more
+            </button>
+          </div>
+        )}
       </section>
     </>
   )

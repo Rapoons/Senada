@@ -8,11 +8,11 @@ import { heroSlides, layanan } from '../data/contoh'
 const wrap = 'mx-auto max-w-[1440px] px-6 md:px-16'
 const label = 'text-xs uppercase tracking-[0.22em] text-accent'
 
-// Susunan asimetris untuk "Proyek terpilih": kolom, rasio, dan offset selang-seling.
+// "Proyek terpilih": tiga kotak 1:1, kotak tengah digeser turun.
 const grid = [
-  { cls: 'md:col-span-5', ratio: '4 / 5' },
-  { cls: 'md:col-span-4 md:col-start-6 md:mt-24', ratio: '1 / 1' },
-  { cls: 'md:col-span-3 md:col-start-10', ratio: '3 / 4' },
+  { cls: 'md:col-span-4', ratio: '1 / 1' },
+  { cls: 'md:col-span-4 md:mt-24', ratio: '1 / 1' },
+  { cls: 'md:col-span-4', ratio: '1 / 1' },
 ]
 
 export default function Beranda() {
@@ -33,11 +33,11 @@ export default function Beranda() {
         </div>
       </HeroSlider>
 
-      <div className="h-24 md:h-40" aria-hidden="true" />
+      <div className="h-12 md:h-20" aria-hidden="true" />
 
       {/* PROYEK UNGGULAN */}
       {unggulan && (
-        <section className={`${wrap} grid gap-10 pb-32 md:grid-cols-12 md:gap-x-6 md:pb-44`}>
+        <section className={`${wrap} grid gap-10 pb-20 md:grid-cols-12 md:gap-x-6 md:pb-28`}>
           <div className="md:col-span-7">
             <RevealImage src={unggulan.gambar[0]?.path} alt={unggulan.gambar[0]?.alt || unggulan.judul} ratio="4 / 3" />
           </div>
@@ -63,8 +63,8 @@ export default function Beranda() {
       )}
 
       {/* LAYANAN */}
-      <section className={`${wrap} grid gap-10 pb-32 md:grid-cols-12 md:gap-x-6 md:pb-44`}>
-        <div className="md:col-span-4">
+      <section className={`${wrap} grid gap-10 pb-20 md:grid-cols-12 md:gap-x-6 md:pb-28`}>
+        <div className="md:col-span-12">
           <span className={label}>Layanan</span>
           <h2 className="mt-5 font-display text-5xl font-normal leading-[1.05]">Dari gagasan sampai serah terima.</h2>
         </div>
@@ -83,7 +83,7 @@ export default function Beranda() {
 
       {/* PROYEK TERPILIH */}
       {lainnya.length > 0 && (
-        <section className={`${wrap} pb-32 md:pb-44`}>
+        <section className={`${wrap} pb-20 md:pb-28`}>
           <div className="mb-12 flex items-end justify-between">
             <h2 className="font-display text-5xl font-normal leading-[1.05]">Proyek terpilih</h2>
             <Link to="/portofolio" className="under text-sm tracking-wide">Semua proyek</Link>
@@ -103,7 +103,7 @@ export default function Beranda() {
       )}
 
       {/* TENTANG */}
-      <div className="wash py-24 md:py-32">
+      <div className="wash py-16 md:py-24">
       <section id="tentang" className={`${wrap} grid gap-10 md:grid-cols-12 md:gap-x-6`}>
         <div className="md:col-span-4">
           <span className={label}>Tentang studio</span>

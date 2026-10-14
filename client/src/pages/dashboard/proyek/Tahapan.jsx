@@ -1,12 +1,13 @@
 import { useState } from 'react'
 import { kirim } from '../../../lib/api'
 import { STATUS_TAHAP, terlambat, tgl, tglInput } from '../../../lib/format'
-import { Btn, Pesan, input } from '../ui'
+import { Btn, Pesan, input, useTanya } from '../ui'
 
 // Tahapan proyek sebagai timeline. Arsitek/admin mengubah status; admin juga menambah, menggeser,
 // mengganti nama, mengatur target, dan menghapus. Klien hanya melihat.
 export default function Tahapan({ proyek, user, reload }) {
   const [err, setErr] = useState(null)
+  const [tanya, dialog] = useTanya()
   const [baru, setBaru] = useState({ nama: '', tanggalTarget: '' })
   const staf = user.role !== 'KLIEN'
   const admin = user.role === 'ADMIN'
@@ -16,6 +17,7 @@ export default function Tahapan({ proyek, user, reload }) {
 
   return (
     <section aria-labelledby="tahapan" className="mt-14">
+      {dialog}
       <h2 id="tahapan" className="font-display text-2xl font-medium">Tahapan</h2>
       <div className="mt-4"><Pesan error={err} /></div>
 
@@ -34,10 +36,10 @@ export default function Tahapan({ proyek, user, reload }) {
                   <label className="text-xs text-muted">Target
                     <input type="date" defaultValue={tglInput(t.tanggalTarget)} onChange={(e) => jalankan(() => kirim('PATCH', `${base}/${t.id}`, { tanggalTarget: e.target.value || null }))} className={input + ' ml-2 inline-block w-auto py-1'} />
                   </label>
-                  <Btn variant="garis" onClick={() => { const n = window.prompt('Nama tahapan', t.nama); if (n && n !== t.nama) jalankan(() => kirim('PATCH', `${base}/${t.id}`, { nama: n })) }}>Ganti nama</Btn>
+                  <Btn variant="garis" onClick={async () => { const n = await tanya({ judul: 'Ganti nama tahapan', nilai: t.nama }); if (n && n !== t.nama) jalankan(() => kirim('PATCH', `${base}/${t.id}`, { nama: n })) }}>Ganti nama</Btn>
                   <Btn variant="garis" disabled={i === 0} aria-label="Geser ke atas" onClick={() => jalankan(() => kirim('POST', `${base}/${t.id}/move`, { arah: 'naik' }))}>&uarr;</Btn>
                   <Btn variant="garis" disabled={i === proyek.tahapan.length - 1} aria-label="Geser ke bawah" onClick={() => jalankan(() => kirim('POST', `${base}/${t.id}/move`, { arah: 'turun' }))}>&darr;</Btn>
-                  <Btn variant="bahaya" onClick={() => window.confirm(`Hapus tahapan "${t.nama}"?`) && jalankan(() => kirim('DELETE', `${base}/${t.id}`))}>Hapus</Btn>
+                  <Btn variant="bahaya" onClick={async () => (await tanya({ judul: `Hapus tahapan "${t.nama}"?`, tombol: 'Hapus', bahaya: true })) && jalankan(() => kirim('DELETE', `${base}/${t.id}`))}>Hapus</Btn>
                 </div>
               )}
             </div>
